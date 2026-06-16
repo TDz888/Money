@@ -1,0 +1,21 @@
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+# Migrations are run on every release. Falls back to /data/dev.db (SQLite
+# on a persistent volume) if DATABASE_URL is not set. To switch to
+# PostgreSQL, set DATABASE_URL and change prisma/schema.prisma to
+# provider = "postgresql".
+startCommand = "sh -c 'node ./node_modules/prisma/build/index.js db push --skip-generate --accept-data-loss --schema=./prisma/schema.prisma && node server.js'"
+healthcheckPath = "/api/health"
+healthcheckPort = 3000
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+
+[env]
+NODE_ENV = "production"
+PORT = "3000"
+HOSTNAME = "0.0.0.0"
+NEXT_TELEMETRY_DISABLED = "1"

@@ -1,0 +1,54 @@
+{
+  "name": "ai-chat-web",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/setup-db.js generate && next dev",
+    "build": "node scripts/setup-db.js generate && next build",
+    "start": "next start",
+    "lint": "next lint",
+    "postinstall": "node scripts/setup-db.js generate",
+    "db:push": "node scripts/setup-db.js db push --skip-generate",
+    "db:migrate": "node scripts/setup-db.js migrate dev",
+    "db:studio": "node scripts/setup-db.js studio",
+    "db:seed": "tsx prisma/seed.ts",
+    "admin:promote": "tsx scripts/promote-admin.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1",
+    "@google/generative-ai": "^0.21.0",
+    "@prisma/client": "^5.22.0",
+    "bcryptjs": "^2.4.3",
+    "clsx": "^2.1.1",
+    "jose": "^5.9.6",
+    "next": "14.2.18",
+    "openai": "^4.77.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-markdown": "^9.0.1",
+    "react-syntax-highlighter": "^15.6.1",
+    "rehype-sanitize": "^6.0.0",
+    "remark-gfm": "^4.0.0",
+    "sonner": "^1.7.0",
+    "tailwind-merge": "^2.5.4",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^22.10.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@types/react-syntax-highlighter": "^15.5.13",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "14.2.18",
+    "postcss": "^8.4.49",
+    "prisma": "^5.22.0",
+    "tailwindcss": "^3.4.15",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  },
+  "optionalDependencies": {
+    "ioredis": "^5.4.1"
+  }
+}

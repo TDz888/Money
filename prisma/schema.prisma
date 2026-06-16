@@ -1,0 +1,102 @@
+// Prisma schema - SQLite by default for zero-config dev, swap to PostgreSQL via DATABASE_URL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String           @id @default(cuid())
+  email           String           @unique
+  password        String
+  name            String?
+  credits         Int              @default(0)
+  role            String           @default("USER") // USER | ADMIN
+  emailVerified   Boolean          @default(false)
+  banned          Boolean          @default(false)
+  bannedReason    String?
+  lastActiveAt    DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  sessions        Session[]
+  conversations   Conversation[]
+  yeumoneyLogs    YeumoneyLog[]
+  creditLedger    CreditLedger[]
+
+  @@index([email])
+  @@index([role])
+  @@index([banned])
+  @@index([createdAt])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash    String   @unique
+  userAgent    String?
+  ipHash       String?
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Conversation {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String    @default("New Chat")
+  model     String    @default("gpt-4o-mini")
+  pinned    Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  messages  Message[]
+
+  @@index([userId, updatedAt])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String       // USER | ASSISTANT | SYSTEM
+  content        String
+  tokensUsed     Int          @default(0)
+  creditsCharged Int          @default(0)
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
+}
+
+model YeumoneyLog {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  yeumoneyTxId  String    @unique
+  shortUrl      String?
+  credits       Int       @default(0)
+  status        String    @default("PENDING") // PENDING | COMPLETED | FAILED
+  ipHash        String?
+  createdAt     DateTime  @default(now())
+  completedAt   DateTime?
+
+  @@index([userId, createdAt])
+}
+
+model CreditLedger {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount      Int      // positive = credit, negative = debit
+  reason      String   // YEUMONEY_REWARD | CHAT_DEBIT | ADMIN_ADJUST
+  refId       String?  // message id, yeumoney log id, etc.
+  createdAt   DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
